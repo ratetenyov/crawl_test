@@ -4,15 +4,37 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
   <title>Crawl_test</title>
 </head>
 <body>
-  <form action="" method="post">
-    <label for="">Site</label>
-    <input type="text" placeholder="Enter URL" value="">
-    <button type="submit">Get links</button>
-  </form>
-  <p class="links"></p>
+  <main>
+    <form action="" method="post">
+      <p>Please enter URL in the correct format</p>
+      <div class="input-wrapper">
+        <input type="text" placeholder="format: http(s)://www.example.com" value="">
+        <button type="submit">Get links</button>
+      </div>
+      <p class="alert-notice"></p>
+      <div class="links-container">
+        <span class="wait-notice">Crawling...</span>
+        <div class="spinner">
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
+      </div>
+    </form>
+  </main>
   <script src="main.js"></script>
   <script src="server.js"></script>
 </body>
