@@ -31,7 +31,6 @@ async function crawlSite(url) {
 
     $("a").each((_, element) => {
       const scrapedURL = $(element).attr("href");
-      console.log(scrapedURL);
       if (!uniqueURLs.includes(scrapedURL) && scrapedURL?.includes(origin)) {
         uniqueURLs.push(scrapedURL);
         visitedURLs.push(scrapedURL);
