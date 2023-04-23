@@ -4,5 +4,5 @@
 
 ### To start the project:
 
-npm install
+npm install  
 npm start
