@@ -1,32 +1,33 @@
 const form = document.querySelector("form");
-const input = document.querySelector("input");
+const inputText = document.querySelector("input[type=text]");
 const container = document.querySelector(".links-container");
 const spinner = document.querySelector(".spinner");
 const waitNotice = document.querySelector(".wait-notice");
 const alertNotice = document.querySelector(".alert-notice");
-const linksList = document.querySelector("ul");
+const itemsCounterWrapper = document.querySelector(".items-number");
 
 form.addEventListener("submit", (evt) => {
   evt.preventDefault();
+  if (isValidHttpURL(inputText.value)) {
+    removeChildNode(container, document.querySelector("ul"));
 
-  if (isValidHttpURL(input.value)) {
-    const linksList = document.querySelector("ul");
-    if (linksList) container.removeChild(linksList);
-
-    crawlSite(input.value);
+    getURLs(inputText.value);
     spinner.classList.add("visible");
     waitNotice.classList.add("visible");
     container.classList.add("links-container--flex");
+    itemsCounterWrapper.classList.remove("visible");
     alertNotice.textContent = "";
-    input.classList.remove("input--alert");
+    inputText.classList.remove("input--alert");
   } else {
-    input.classList.add("input--alert");
+    removeChildNode(container, document.querySelector("ul"));
+    inputText.classList.add("input--alert");
     alertNotice.textContent = "URL format is incorrect, please adjust";
+    itemsCounterWrapper.textContent = "";
   }
 });
 
-const crawlSite = (url) => {
-  fetch("http://localhost:8080/crawlSite", {
+const getURLs = (url) => {
+  fetch("http://localhost:3000/crawlSite", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -39,7 +40,9 @@ const crawlSite = (url) => {
       spinner.classList.remove("visible");
       waitNotice.classList.remove("visible");
       container.classList.remove("links-container--flex");
-      input.value = "";
+      itemsCounterWrapper.classList.add("visible");
+      itemsCounterWrapper.textContent = "URLs in the list: " + res.length;
+      inputText.value = "";
     });
 };
 
@@ -68,4 +71,10 @@ const isValidHttpURL = (inputURL) => {
     return false;
   }
   return url.protocol === "http:" || url.protocol === "https:";
+};
+
+const removeChildNode = (parentNode, childNode) => {
+  if (childNode && parentNode) {
+    parentNode.removeChild(childNode);
+  }
 };

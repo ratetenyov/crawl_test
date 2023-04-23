@@ -11,19 +11,24 @@ app.get("/", (_, res) => {
   res.sendFile(`${__dirname}/public/index.html`);
 });
 
-app.post("/crawlSite", async (req, res) => {
-  const links = await crawlSite(req.body.url);
-  res.json(links);
+app.post("/crawlSite", async ({ body }, res) => {
+  try {
+    const links = await crawlSite(body.url, body.linksAmount);
+    res.json(links);
+  } catch (_) {
+    res.end();
+  }
 });
 
-app.listen(8080, () => {
-  console.log("Application listening on port 8080!");
+app.listen(3000, () => {
+  console.log("Application listening on port 3000!");
 });
 
 async function crawlSite(url) {
   const origin = new URL(url).origin;
-  const uniqueURLs = [];
+  let uniqueURLs = [];
   const visitedURLs = [url];
+  const MAX_UNIQUE = 300;
 
   const traverseDOM = async (urls) => {
     const link = urls.pop();
@@ -31,7 +36,12 @@ async function crawlSite(url) {
     const $ = cheerio.load(pageHTML.data);
 
     $("a").each((_, element) => {
-      const scrapedURL = $(element).attr("href");
+      let scrapedURL = $(element).attr("href");
+
+      if (scrapedURL?.startsWith("/")) {
+        scrapedURL = origin + scrapedURL;
+      }
+
       if (!uniqueURLs.includes(scrapedURL) && scrapedURL?.includes(origin)) {
         uniqueURLs.push(scrapedURL);
         visitedURLs.push(scrapedURL);
@@ -39,7 +49,14 @@ async function crawlSite(url) {
     });
   };
 
-  while (visitedURLs.length) await traverseDOM(visitedURLs);
+  while (visitedURLs.length) {
+    await traverseDOM(visitedURLs);
+
+    if (uniqueURLs.length >= MAX_UNIQUE) {
+      uniqueURLs = uniqueURLs.slice(0, MAX_UNIQUE);
+      break;
+    }
+  }
 
   return uniqueURLs;
 }
