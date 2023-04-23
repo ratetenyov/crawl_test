@@ -16,8 +16,8 @@ app.post("/crawlSite", async (req, res) => {
   res.json(links);
 });
 
-app.listen(8080, () => {
-  console.log("Application listening on port 8080!");
+app.listen(3000, () => {
+  console.log("Application listening on port 3000!");
 });
 
 async function crawlSite(url) {
