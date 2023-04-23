@@ -12,7 +12,7 @@ app.get("/", (req, res) => {
 });
 
 app.post("/crawlSite", async (req, res) => {
-  const links = await main(req.body.url);
+  const links = await crawlSite(req.body.url);
   res.json(links);
 });
 
@@ -20,15 +20,29 @@ app.listen(8080, () => {
   console.log("Application listening on port 8080!");
 });
 
-async function main(url) {
-  const pageHTML = await axios.get(url);
-  const $ = cheerio.load(pageHTML.data);
-  const allUrls = [];
+async function crawlSite(url) {
+  const origin = new URL(url).origin;
+  const uniqueURLs = [];
+  const visitedURLs = [url];
+  const traverseDOM = async (urls) => {
+    const link = urls.pop();
+    const pageHTML = await axios.get(link);
+    const $ = cheerio.load(pageHTML.data);
 
-  $("a").each((index, element) => {
-    const paginationURL = $(element).attr("href");
-    allUrls.push(paginationURL);
-  });
+    $("a").each((_, element) => {
+      const scrapedURL = $(element).attr("href");
+      console.log(scrapedURL);
+      if (!uniqueURLs.includes(scrapedURL) && scrapedURL?.includes(origin)) {
+        uniqueURLs.push(scrapedURL);
+        visitedURLs.push(scrapedURL);
+      }
+    });
+  };
 
-  return allUrls;
+  while (visitedURLs.length) {
+    await traverseDOM(visitedURLs);
+    console.log(visitedURLs);
+  }
+
+  return uniqueURLs;
 }
