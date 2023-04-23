@@ -7,7 +7,7 @@ const path = require("path");
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
 
-app.get("/", (req, res) => {
+app.get("/", (_, res) => {
   res.sendFile(`${__dirname}/public/index.html`);
 });
 
@@ -24,6 +24,7 @@ async function crawlSite(url) {
   const origin = new URL(url).origin;
   const uniqueURLs = [];
   const visitedURLs = [url];
+
   const traverseDOM = async (urls) => {
     const link = urls.pop();
     const pageHTML = await axios.get(link);
@@ -38,10 +39,7 @@ async function crawlSite(url) {
     });
   };
 
-  while (visitedURLs.length) {
-    await traverseDOM(visitedURLs);
-    console.log(visitedURLs);
-  }
+  while (visitedURLs.length) await traverseDOM(visitedURLs);
 
   return uniqueURLs;
 }
