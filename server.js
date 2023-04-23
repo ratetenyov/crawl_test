@@ -12,8 +12,12 @@ app.get("/", (_, res) => {
 });
 
 app.post("/crawlSite", async ({ body }, res) => {
-  const links = await crawlSite(body.url, body.linksAmount);
-  res.json(links);
+  try {
+    const links = await crawlSite(body.url, body.linksAmount);
+    res.json(links);
+  } catch (_) {
+    res.end();
+  }
 });
 
 app.listen(3000, () => {
@@ -53,7 +57,6 @@ async function crawlSite(url) {
       break;
     }
   }
-  console.log(uniqueURLs);
 
   return uniqueURLs;
 }

@@ -11,7 +11,7 @@ form.addEventListener("submit", (evt) => {
   if (isValidHttpURL(inputText.value)) {
     removeChildNode(container, document.querySelector("ul"));
 
-    crawlSite(inputText.value);
+    getURLs(inputText.value);
     spinner.classList.add("visible");
     waitNotice.classList.add("visible");
     container.classList.add("links-container--flex");
@@ -22,10 +22,11 @@ form.addEventListener("submit", (evt) => {
     removeChildNode(container, document.querySelector("ul"));
     inputText.classList.add("input--alert");
     alertNotice.textContent = "URL format is incorrect, please adjust";
+    itemsCounterWrapper.textContent = "";
   }
 });
 
-const crawlSite = (url) => {
+const getURLs = (url) => {
   fetch("http://localhost:3000/crawlSite", {
     method: "POST",
     headers: {
