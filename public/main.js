@@ -1,22 +1,21 @@
 const form = document.querySelector("form");
 const inputText = document.querySelector("input[type=text]");
-const inputNumber = document.querySelector("input[type=number]");
 const container = document.querySelector(".links-container");
 const spinner = document.querySelector(".spinner");
 const waitNotice = document.querySelector(".wait-notice");
 const alertNotice = document.querySelector(".alert-notice");
-const linksList = document.querySelector("ul");
+const itemsCounterWrapper = document.querySelector(".items-number");
 
 form.addEventListener("submit", (evt) => {
   evt.preventDefault();
-
   if (isValidHttpURL(inputText.value)) {
     removeChildNode(container, document.querySelector("ul"));
 
-    crawlSite(inputText.value, Number(inputNumber.value));
+    crawlSite(inputText.value);
     spinner.classList.add("visible");
     waitNotice.classList.add("visible");
     container.classList.add("links-container--flex");
+    itemsCounterWrapper.classList.remove("visible");
     alertNotice.textContent = "";
     inputText.classList.remove("input--alert");
   } else {
@@ -26,20 +25,13 @@ form.addEventListener("submit", (evt) => {
   }
 });
 
-inputNumber.addEventListener("change", (evt) => {
-  if (Number(evt.target.value) > 300) {
-    inputNumber.value = 300;
-  }
-});
-
-const crawlSite = (url, linksAmount) => {
-  console.log({ linksAmount });
+const crawlSite = (url) => {
   fetch("http://localhost:3000/crawlSite", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ url, linksAmount }),
+    body: JSON.stringify({ url }),
   })
     .then((res) => res.json())
     .then((res) => {
@@ -47,8 +39,9 @@ const crawlSite = (url, linksAmount) => {
       spinner.classList.remove("visible");
       waitNotice.classList.remove("visible");
       container.classList.remove("links-container--flex");
+      itemsCounterWrapper.classList.add("visible");
+      itemsCounterWrapper.textContent = "URLs in the list: " + res.length;
       inputText.value = "";
-      inputNumber.value = "";
     });
 };
 

@@ -20,10 +20,11 @@ app.listen(3000, () => {
   console.log("Application listening on port 3000!");
 });
 
-async function crawlSite(url, linksAmount = 50) {
+async function crawlSite(url) {
   const origin = new URL(url).origin;
   let uniqueURLs = [];
   const visitedURLs = [url];
+  const MAX_UNIQUE = 300;
 
   const traverseDOM = async (urls) => {
     const link = urls.pop();
@@ -47,12 +48,12 @@ async function crawlSite(url, linksAmount = 50) {
   while (visitedURLs.length) {
     await traverseDOM(visitedURLs);
 
-    if (uniqueURLs.length >= linksAmount) {
-      uniqueURLs = uniqueURLs.slice(0, linksAmount);
+    if (uniqueURLs.length >= MAX_UNIQUE) {
+      uniqueURLs = uniqueURLs.slice(0, MAX_UNIQUE);
       break;
     }
-    console.log(uniqueURLs);
   }
+  console.log(uniqueURLs);
 
   return uniqueURLs;
 }
