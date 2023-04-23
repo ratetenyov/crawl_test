@@ -1,5 +1,6 @@
 const form = document.querySelector("form");
-const input = document.querySelector("input");
+const inputText = document.querySelector("input[type=text]");
+const inputNumber = document.querySelector("input[type=number]");
 const container = document.querySelector(".links-container");
 const spinner = document.querySelector(".spinner");
 const waitNotice = document.querySelector(".wait-notice");
@@ -9,29 +10,36 @@ const linksList = document.querySelector("ul");
 form.addEventListener("submit", (evt) => {
   evt.preventDefault();
 
-  if (isValidHttpURL(input.value)) {
-    const linksList = document.querySelector("ul");
-    if (linksList) container.removeChild(linksList);
+  if (isValidHttpURL(inputText.value)) {
+    removeChildNode(container, document.querySelector("ul"));
 
-    crawlSite(input.value);
+    crawlSite(inputText.value, Number(inputNumber.value));
     spinner.classList.add("visible");
     waitNotice.classList.add("visible");
     container.classList.add("links-container--flex");
     alertNotice.textContent = "";
-    input.classList.remove("input--alert");
+    inputText.classList.remove("input--alert");
   } else {
-    input.classList.add("input--alert");
+    removeChildNode(container, document.querySelector("ul"));
+    inputText.classList.add("input--alert");
     alertNotice.textContent = "URL format is incorrect, please adjust";
   }
 });
 
-const crawlSite = (url) => {
-  fetch("http://localhost:8080/crawlSite", {
+inputNumber.addEventListener("change", (evt) => {
+  if (Number(evt.target.value) > 300) {
+    inputNumber.value = 300;
+  }
+});
+
+const crawlSite = (url, linksAmount) => {
+  console.log({ linksAmount });
+  fetch("http://localhost:3000/crawlSite", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ url }),
+    body: JSON.stringify({ url, linksAmount }),
   })
     .then((res) => res.json())
     .then((res) => {
@@ -39,7 +47,8 @@ const crawlSite = (url) => {
       spinner.classList.remove("visible");
       waitNotice.classList.remove("visible");
       container.classList.remove("links-container--flex");
-      input.value = "";
+      inputText.value = "";
+      inputNumber.value = "";
     });
 };
 
@@ -68,4 +77,10 @@ const isValidHttpURL = (inputURL) => {
     return false;
   }
   return url.protocol === "http:" || url.protocol === "https:";
+};
+
+const removeChildNode = (parentNode, childNode) => {
+  if (childNode && parentNode) {
+    parentNode.removeChild(childNode);
+  }
 };

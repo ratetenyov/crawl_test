@@ -11,8 +11,8 @@ app.get("/", (_, res) => {
   res.sendFile(`${__dirname}/public/index.html`);
 });
 
-app.post("/crawlSite", async (req, res) => {
-  const links = await crawlSite(req.body.url);
+app.post("/crawlSite", async ({ body }, res) => {
+  const links = await crawlSite(body.url, body.linksAmount);
   res.json(links);
 });
 
@@ -20,9 +20,9 @@ app.listen(3000, () => {
   console.log("Application listening on port 3000!");
 });
 
-async function crawlSite(url) {
+async function crawlSite(url, linksAmount = 50) {
   const origin = new URL(url).origin;
-  const uniqueURLs = [];
+  let uniqueURLs = [];
   const visitedURLs = [url];
 
   const traverseDOM = async (urls) => {
@@ -31,7 +31,12 @@ async function crawlSite(url) {
     const $ = cheerio.load(pageHTML.data);
 
     $("a").each((_, element) => {
-      const scrapedURL = $(element).attr("href");
+      let scrapedURL = $(element).attr("href");
+
+      if (scrapedURL?.startsWith("/")) {
+        scrapedURL = origin + scrapedURL;
+      }
+
       if (!uniqueURLs.includes(scrapedURL) && scrapedURL?.includes(origin)) {
         uniqueURLs.push(scrapedURL);
         visitedURLs.push(scrapedURL);
@@ -39,7 +44,15 @@ async function crawlSite(url) {
     });
   };
 
-  while (visitedURLs.length) await traverseDOM(visitedURLs);
+  while (visitedURLs.length) {
+    await traverseDOM(visitedURLs);
+
+    if (uniqueURLs.length >= linksAmount) {
+      uniqueURLs = uniqueURLs.slice(0, linksAmount);
+      break;
+    }
+    console.log(uniqueURLs);
+  }
 
   return uniqueURLs;
 }
