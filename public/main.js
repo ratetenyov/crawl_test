@@ -43,6 +43,9 @@ const getURLs = (url) => {
       itemsCounterWrapper.classList.add("visible");
       itemsCounterWrapper.textContent = "URLs in the list: " + res.length;
       inputText.value = "";
+    })
+    .catch((error) => {
+      console.error("Error", error);
     });
 };
 
